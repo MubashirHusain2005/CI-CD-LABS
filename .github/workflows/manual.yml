@@ -1,4 +1,4 @@
-name: CoderCo Manual Workflow 
+name: CoderCo Manual Workflow
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
         run: |
           cd chapter4
           python -m pip install --upgrade pip
-          # Install only external packages, built-in modules like unittest are not needed
+          # Only install external packages; do NOT include built-in modules like unittest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run tests
@@ -41,4 +41,3 @@ jobs:
 
       - name: Notify success
         run: echo "Tests passed on Python ${{ github.event.inputs.python-version }}"
-
