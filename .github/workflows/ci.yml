@@ -1,30 +1,38 @@
-name: Workflows, Jobs, and Steps
+name: Terraform Lint
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - '**/*.tf' # only triggers when Terraform files change
+  pull_request:
+    paths:
+      - '**/*.tf'
+
 jobs:
-  job-1:
-    runs-on: ubuntu-24.04
+  terraform-lint:
+    runs-on: ubuntu-latest
     steps:
-      - run: echo "A job consists of"
-      - run: echo "one or more steps"
-      - run: echo "which run sequentially"
-      - run: echo "within the same compute environment"
-  job-2:
-    runs-on: ubuntu-24.04
-    steps:
-      - run: echo "Multiple jobs can run in parallel"
-  job-3:
-    runs-on: ubuntu-24.04
-    needs:
-      - job-1
-      - job-2
-    steps:
-      - run: echo "They can also depend on one another..."
-  job-4:
-    runs-on: ubuntu-24.04
-    needs:
-      - job-2
-      - job-3
-    steps:
-      - run: echo "...to form a directed acyclic graph (DAG)"
+      # Step 1: Checkout code
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6  # use latest stable
+
+      # Step 3: Terraform format check
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      # Step 4: Terraform validate
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 5: Optional: Run tflint
+      - name: Install tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      - name: Run tflint
+        run: tflint
